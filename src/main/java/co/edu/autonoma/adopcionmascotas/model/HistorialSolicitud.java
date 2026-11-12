@@ -12,12 +12,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
-// para la trazabilidad solo se insertan filas y nunca se modifican
+// para la trazabilidad solo se insertan filas y nunca se modifican (por eso no tiene setters)
 @Entity
 @Immutable
 @Table(name = "historial_solicitud")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HistorialSolicitud {
 
     @Id
@@ -47,9 +53,8 @@ public class HistorialSolicitud {
     @Column(nullable = false)
     private LocalDateTime fecha;
 
-    protected HistorialSolicitud() {
-    }
-
+    // la fecha la pone el constructor y no se recibe desde afuera
+    @Builder
     public HistorialSolicitud(Solicitud solicitud, TipoHistorial tipo,
             EstadoSolicitud estadoAnterior, EstadoSolicitud estadoNuevo, String actor) {
         this.solicitud = solicitud;
@@ -58,33 +63,5 @@ public class HistorialSolicitud {
         this.estadoNuevo = estadoNuevo;
         this.actor = actor;
         this.fecha = LocalDateTime.now();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Solicitud getSolicitud() {
-        return solicitud;
-    }
-
-    public TipoHistorial getTipo() {
-        return tipo;
-    }
-
-    public EstadoSolicitud getEstadoAnterior() {
-        return estadoAnterior;
-    }
-
-    public EstadoSolicitud getEstadoNuevo() {
-        return estadoNuevo;
-    }
-
-    public String getActor() {
-        return actor;
-    }
-
-    public LocalDateTime getFecha() {
-        return fecha;
     }
 }
