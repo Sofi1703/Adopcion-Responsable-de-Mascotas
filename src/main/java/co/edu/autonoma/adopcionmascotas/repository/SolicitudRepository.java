@@ -39,4 +39,19 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
             """)
     boolean existeActiva(@Param("mascotaId") Long mascotaId, @Param("correo") String correo,
             @Param("estados") Collection<EstadoSolicitud> estados);
+
+    // RN-04 las demas solicitudes activas de la mascota
+    @Query("""
+            select s from Solicitud s
+            where s.mascota.id = :mascotaId
+              and s.id <> :excluirId
+              and s.estado in :estados
+              and s.retiradaEn is null
+            """)
+    List<Solicitud> buscarActivasDeMascota(@Param("mascotaId") Long mascotaId, @Param("excluirId") Long excluirId,
+            @Param("estados") Collection<EstadoSolicitud> estados);
+
+    // trae solo el id de la mascota sin cargar entidades (para bloquear la mascota antes de leer la solicitud)
+    @Query("select s.mascota.id from Solicitud s where s.id = :id")
+    Optional<Long> buscarMascotaId(@Param("id") Long id);
 }

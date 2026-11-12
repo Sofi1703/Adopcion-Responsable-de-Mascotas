@@ -1,5 +1,7 @@
 package co.edu.autonoma.adopcionmascotas.service;
 
+import co.edu.autonoma.adopcionmascotas.dto.CambioEstadoRequest;
+import co.edu.autonoma.adopcionmascotas.dto.CambioEstadoResponse;
 import co.edu.autonoma.adopcionmascotas.dto.SolicitudDetalleResponse;
 import co.edu.autonoma.adopcionmascotas.dto.SolicitudRequest;
 import co.edu.autonoma.adopcionmascotas.dto.SolicitudResumenResponse;
@@ -14,6 +16,7 @@ import co.edu.autonoma.adopcionmascotas.repository.HistorialSolicitudRepository;
 import co.edu.autonoma.adopcionmascotas.repository.MascotaRepository;
 import co.edu.autonoma.adopcionmascotas.repository.SolicitudRepository;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SolicitudService {
 
+    private static final String ACTOR_SISTEMA = "SISTEMA";
+
     // RN-02 estados en los que una solicitud sigue vigente
     private static final List<EstadoSolicitud> ESTADOS_ACTIVOS =
             List.of(EstadoSolicitud.RECIBIDA, EstadoSolicitud.EN_REVISION);
+
+    // RN-02 unicas transiciones validas y los estados finales no tienen salida
+    private static final Map<EstadoSolicitud, List<EstadoSolicitud>> TRANSICIONES = Map.of(
+            EstadoSolicitud.RECIBIDA, List.of(EstadoSolicitud.EN_REVISION, EstadoSolicitud.RECHAZADA),
+            EstadoSolicitud.EN_REVISION, List.of(EstadoSolicitud.APROBADA, EstadoSolicitud.RECHAZADA));
 
     private final SolicitudRepository solicitudRepository;
     private final MascotaRepository mascotaRepository;
@@ -90,6 +100,62 @@ public class SolicitudService {
         return detalle(solicitud);
     }
 
+    // RN-02 RN-03 y RN-04 se aplican en la misma transaccion (o se guarda todo o nada)
+    @Transactional
+    public CambioEstadoResponse cambiarEstado(Identidad identidad, Long id, CambioEstadoRequest request) {
+        autorizacion.exigirPersonal(identidad);
+        EstadoSolicitud nuevoEstado = request.getEstado();
+
+        Solicitud solicitud = cargarConMascotaBloqueada(id);
+        Mascota mascota = solicitud.getMascota();
+
+        // RN-02
+        List<EstadoSolicitud> permitidos = TRANSICIONES.getOrDefault(solicitud.getEstado(), List.of());
+        if (solicitud.getRetiradaEn() != null || !permitidos.contains(nuevoEstado)) {
+            String motivo = solicitud.getRetiradaEn() != null
+                    ? "La solicitud fue retirada y no puede cambiar de estado"
+                    : "No se puede pasar una solicitud de " + solicitud.getEstado() + " a " + nuevoEstado;
+            throw ApiException.conflicto("RN-02", motivo);
+        }
+
+        // RN-05 si otra aprobacion ya adopto a la mascota esta no puede aprobarse
+        if (nuevoEstado == EstadoSolicitud.APROBADA && mascota.getEstado() == EstadoMascota.ADOPTADA) {
+            throw ApiException.conflicto("RN-05", "La mascota ya fue adoptada");
+        }
+
+        EstadoSolicitud estadoAnterior = solicitud.getEstado();
+        solicitud.setEstado(nuevoEstado);
+        registrar(solicitud, TipoHistorial.CAMBIO_ESTADO, estadoAnterior, nuevoEstado, identidad.getUsuario());
+
+        List<Long> cerradas = List.of();
+        if (nuevoEstado == EstadoSolicitud.APROBADA) {
+            // RN-03
+            mascota.setEstado(EstadoMascota.ADOPTADA);
+            // RN-04
+            cerradas = cerrarOtrasSolicitudes(mascota, solicitud);
+        }
+
+        return CambioEstadoResponse.builder()
+                .id(solicitud.getId())
+                .estado(solicitud.getEstado())
+                .mascotaId(mascota.getId())
+                .mascotaEstado(mascota.getEstado())
+                .solicitudesCerradas(cerradas)
+                .build();
+    }
+
+    // RN-04 las demas solicitudes activas de la mascota pasan a RECHAZADA con actor SISTEMA
+    private List<Long> cerrarOtrasSolicitudes(Mascota mascota, Solicitud aprobada) {
+        List<Solicitud> otras = solicitudRepository.buscarActivasDeMascota(
+                mascota.getId(), aprobada.getId(), ESTADOS_ACTIVOS);
+        for (Solicitud otra : otras) {
+            EstadoSolicitud estadoAnterior = otra.getEstado();
+            otra.setEstado(EstadoSolicitud.RECHAZADA);
+            registrar(otra, TipoHistorial.CIERRE_AUTOMATICO, estadoAnterior, EstadoSolicitud.RECHAZADA, ACTOR_SISTEMA);
+        }
+        return otras.stream().map(Solicitud::getId).toList();
+    }
+
     private void registrar(Solicitud solicitud, TipoHistorial tipo, EstadoSolicitud anterior,
             EstadoSolicitud nuevo, String actor) {
         historialRepository.save(HistorialSolicitud.builder()
@@ -99,6 +165,15 @@ public class SolicitudService {
                 .estadoNuevo(nuevo)
                 .actor(actor)
                 .build());
+    }
+
+    // primero se bloquea la mascota y despues se lee la solicitud para no trabajar con datos viejos
+    private Solicitud cargarConMascotaBloqueada(Long id) {
+        Long mascotaId = solicitudRepository.buscarMascotaId(id)
+                .orElseThrow(() -> ApiException.noEncontrado("No existe la solicitud " + id));
+        mascotaRepository.buscarConBloqueo(mascotaId);
+        return solicitudRepository.findById(id)
+                .orElseThrow(() -> ApiException.noEncontrado("No existe la solicitud " + id));
     }
 
     private SolicitudDetalleResponse detalle(Solicitud solicitud) {
