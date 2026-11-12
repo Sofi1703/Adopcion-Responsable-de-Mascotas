@@ -5,18 +5,16 @@ import co.edu.autonoma.adopcionmascotas.model.EstadoMascota;
 import co.edu.autonoma.adopcionmascotas.model.Mascota;
 import co.edu.autonoma.adopcionmascotas.repository.MascotaRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MascotaService {
 
     private final MascotaRepository mascotaRepository;
-
-    public MascotaService(MascotaRepository mascotaRepository) {
-        this.mascotaRepository = mascotaRepository;
-    }
 
     // sin estado devuelve todas las mascotas
     public List<MascotaResponse> listar(EstadoMascota estado) {
