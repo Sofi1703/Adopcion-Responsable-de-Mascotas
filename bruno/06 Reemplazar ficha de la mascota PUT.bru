@@ -1,0 +1,30 @@
+meta {
+  name: 06 Reemplazar ficha de la mascota (PUT)
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/api/mascotas/{{mascotaId}}
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: FUNDACION
+  X-Usuario: fundacion
+}
+
+body:json {
+  {
+    "nombre": "Nala",
+    "especie": "Gato",
+    "raza": "Siames",
+    "descripcion": "Cariñosa y esterilizada",
+    "imagenUrl": "https://ejemplo.com/nala.jpg"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

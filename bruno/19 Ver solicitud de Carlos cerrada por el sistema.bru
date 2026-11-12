@@ -1,0 +1,21 @@
+meta {
+  name: 19 Ver solicitud de Carlos cerrada por el sistema
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/api/solicitudes/{{solicitudCarlosId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Rol: COORDINADOR
+  X-Usuario: laura
+}
+
+assert {
+  res.status: eq 200
+  res.body.estado: eq RECHAZADA
+}

@@ -1,0 +1,31 @@
+meta {
+  name: 22 Crear segunda mascota
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/api/mascotas
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: FUNDACION
+  X-Usuario: fundacion
+}
+
+body:json {
+  {
+    "nombre": "Michi",
+    "especie": "Gato"
+  }
+}
+
+vars:post-response {
+  mascota2Id: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

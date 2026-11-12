@@ -1,6 +1,6 @@
-# Contrato de la API (borrador)
+# Contrato de la API
 
-Peticiones que tendrá el aplicativo, con el objeto que recibe el controller y el JSON que responde el servidor. Es un borrador para revisar en equipo: lo marcado como **supuesto** está pendiente de confirmar.
+Peticiones del aplicativo, con el objeto que recibe el controller y el JSON que responde el servidor. Las URL completas para probar con la app corriendo empiezan por `http://localhost:8080`.
 
 ## Convenciones
 
@@ -10,7 +10,7 @@ Peticiones que tendrá el aplicativo, con el objeto que recibe el controller y e
 - Los campos opcionales sin valor se devuelven como `null`
 - Los datos de contacto (`solicitanteCorreo`, `telefono`) solo salen en el detalle de una solicitud para quien tiene permiso, nunca en el catálogo ni en los listados
 
-### Identificación (supuesto)
+### Identificación
 
 Sin login real: el cliente envía dos cabeceras y el servidor las usa para autorizar y para llenar `actor` en el historial.
 
@@ -166,7 +166,7 @@ Reemplaza la ficha pública completa. Lo que no se envíe en los campos opcional
 
 ### 5. DELETE `/api/mascotas/{id}`
 
-**Supuesto:** solo se puede eliminar una mascota sin solicitudes, para no perder la trazabilidad.
+Solo se puede eliminar una mascota sin solicitudes, para no perder la trazabilidad.
 
 - **Objeto al controller:** ninguno
 - **Respuesta 204** sin cuerpo
@@ -303,11 +303,11 @@ El solicitante retira su solicitud. No se borra la fila: se llena `retirada_en` 
 
 ---
 
-## Supuestos a confirmar
+## Decisiones de diseño
 
-1. La identificación por cabeceras `X-Rol` y `X-Usuario` (la rama `feature/login` aún no tiene nada)
-2. Que crear una solicitud (6) sea público y no requiera cabeceras, porque el solicitante no tiene cuenta
-3. Que el listado (7) quede solo para el personal y los solicitantes no tengan listado propio
-4. Que `DELETE /api/mascotas/{id}` exista (5) o se deje fuera para no complicar el alcance
-5. Que el historial viaje dentro del detalle de la solicitud y no en un endpoint aparte
-6. Formato único de error con el campo `codigo`
+1. La identificación es simulada con las cabeceras `X-Rol` y `X-Usuario` (no hay login real)
+2. Crear una solicitud (6) es público y no requiere cabeceras, porque el solicitante no tiene cuenta
+3. El listado de solicitudes (7) es solo para el personal; un solicitante consulta las suyas por id (8)
+4. Una mascota solo se elimina (5) si no tiene solicitudes, para conservar la trazabilidad
+5. El historial viaja dentro del detalle de la solicitud y no en un endpoint aparte
+6. Todos los errores usan el mismo formato con el campo `codigo`

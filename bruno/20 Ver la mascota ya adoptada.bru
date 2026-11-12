@@ -1,0 +1,15 @@
+meta {
+  name: 20 Ver la mascota ya adoptada
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/api/mascotas/{{mascotaId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

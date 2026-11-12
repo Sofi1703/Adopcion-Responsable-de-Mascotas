@@ -1,0 +1,15 @@
+meta {
+  name: 11 Listar solicitudes sin cabeceras (401)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/solicitudes
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}
