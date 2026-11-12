@@ -29,6 +29,8 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
     @EntityGraph(attributePaths = "mascota")
     List<Solicitud> findByMascotaIdAndEstadoOrderByCreadaEnDesc(Long mascotaId, EstadoSolicitud estado);
 
+    boolean existsByMascotaId(Long mascotaId);
+
     // RN-01 mismo criterio que el indice uq_solicitud_activa de la base
     @Query("""
             select count(s) > 0 from Solicitud s

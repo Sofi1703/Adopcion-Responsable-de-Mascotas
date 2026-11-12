@@ -28,4 +28,16 @@ public class AutorizacionService {
             throw ApiException.sinPermiso("Esta accion es solo para la fundacion y los coordinadores");
         }
     }
+
+    public void exigirFundacion(Identidad identidad) {
+        if (identidad.getRol() != Rol.FUNDACION) {
+            throw ApiException.sinPermiso("Esta accion es solo para la fundacion");
+        }
+    }
+
+    public void exigirSolicitante(Identidad identidad) {
+        if (identidad.getRol() != Rol.SOLICITANTE) {
+            throw ApiException.sinPermiso("Esta accion es solo para solicitantes");
+        }
+    }
 }

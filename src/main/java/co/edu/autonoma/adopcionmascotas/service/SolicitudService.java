@@ -15,6 +15,7 @@ import co.edu.autonoma.adopcionmascotas.model.TipoHistorial;
 import co.edu.autonoma.adopcionmascotas.repository.HistorialSolicitudRepository;
 import co.edu.autonoma.adopcionmascotas.repository.MascotaRepository;
 import co.edu.autonoma.adopcionmascotas.repository.SolicitudRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -142,6 +143,28 @@ public class SolicitudService {
                 .mascotaEstado(mascota.getEstado())
                 .solicitudesCerradas(cerradas)
                 .build();
+    }
+
+    // el solicitante retira su solicitud y no se borra la fila para conservar la trazabilidad
+    @Transactional
+    public void retirar(Identidad identidad, Long id) {
+        autorizacion.exigirSolicitante(identidad);
+
+        Solicitud solicitud = cargarConMascotaBloqueada(id);
+
+        if (!solicitud.getSolicitanteCorreo().equalsIgnoreCase(identidad.getUsuario())) {
+            throw ApiException.sinPermiso("Solo puedes retirar tus propias solicitudes");
+        }
+        if (solicitud.getRetiradaEn() != null) {
+            throw ApiException.conflicto("CONFLICTO", "La solicitud ya fue retirada");
+        }
+        if (solicitud.getEstado() != EstadoSolicitud.RECIBIDA) {
+            throw ApiException.conflicto("CONFLICTO", "Solo se puede retirar una solicitud antes de que entre en revision");
+        }
+
+        solicitud.setRetiradaEn(LocalDateTime.now());
+        // el retiro no cambia el estado y por eso no lleva estado anterior ni nuevo
+        registrar(solicitud, TipoHistorial.RETIRO, null, null, identidad.getUsuario());
     }
 
     // RN-04 las demas solicitudes activas de la mascota pasan a RECHAZADA con actor SISTEMA
