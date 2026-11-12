@@ -16,6 +16,14 @@ public class ApiException extends RuntimeException {
         this.codigo = codigo;
     }
 
+    public static ApiException noAutenticado(String mensaje) {
+        return new ApiException(HttpStatus.UNAUTHORIZED, "NO_AUTENTICADO", mensaje);
+    }
+
+    public static ApiException sinPermiso(String mensaje) {
+        return new ApiException(HttpStatus.FORBIDDEN, "SIN_PERMISO", mensaje);
+    }
+
     public static ApiException noEncontrado(String mensaje) {
         return new ApiException(HttpStatus.NOT_FOUND, "NO_ENCONTRADO", mensaje);
     }
