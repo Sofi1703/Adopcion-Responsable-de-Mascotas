@@ -1,0 +1,24 @@
+meta {
+  name: 21 Solicitar mascota adoptada (RN-05)
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/api/solicitudes-adopcion
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mascotaId": {{mascotaId}},
+    "solicitanteNombre": "Carlos Ruiz",
+    "solicitanteCorreo": "carlos@correo.com",
+    "telefono": "3204445566"
+  }
+}
+
+assert {
+  res.status: eq 409
+}

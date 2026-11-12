@@ -1,0 +1,26 @@
+meta {
+  name: 16 Aprobar sin pasar por revision (RN-02)
+  type: http
+  seq: 16
+}
+
+patch {
+  url: {{baseUrl}}/api/solicitudes/{{solicitudAnaId}}/estado
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: COORDINADOR
+  X-Usuario: laura
+}
+
+body:json {
+  {
+    "estado": "APROBADA"
+  }
+}
+
+assert {
+  res.status: eq 409
+}

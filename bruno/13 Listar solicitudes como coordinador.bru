@@ -1,0 +1,20 @@
+meta {
+  name: 13 Listar solicitudes como coordinador
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/api/solicitudes?mascotaId={{mascotaId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Rol: COORDINADOR
+  X-Usuario: laura
+}
+
+assert {
+  res.status: eq 200
+}

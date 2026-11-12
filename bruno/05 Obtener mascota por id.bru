@@ -1,0 +1,15 @@
+meta {
+  name: 05 Obtener mascota por id
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/mascotas/{{mascotaId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
