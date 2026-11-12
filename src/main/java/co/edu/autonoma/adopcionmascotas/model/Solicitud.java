@@ -13,9 +13,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+// los datos del solicitante no cambian despues de crearse y por eso solo estado y retiradaEn tienen setter
 @Entity
 @Table(name = "solicitud")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Solicitud {
 
     @Id
@@ -35,6 +43,7 @@ public class Solicitud {
     @Column(nullable = false, length = 30)
     private String telefono;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EstadoSolicitud estado = EstadoSolicitud.RECIBIDA;
@@ -43,12 +52,11 @@ public class Solicitud {
     private LocalDateTime creadaEn;
 
     // retirar no borra la fila y solo marca la fecha para conservar la trazabilidad
+    @Setter
     @Column(name = "retirada_en")
     private LocalDateTime retiradaEn;
 
-    protected Solicitud() {
-    }
-
+    @Builder
     public Solicitud(Mascota mascota, String solicitanteCorreo, String solicitanteNombre, String telefono) {
         this.mascota = mascota;
         this.solicitanteCorreo = solicitanteCorreo;
@@ -61,45 +69,5 @@ public class Solicitud {
         if (creadaEn == null) {
             creadaEn = LocalDateTime.now();
         }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Mascota getMascota() {
-        return mascota;
-    }
-
-    public String getSolicitanteCorreo() {
-        return solicitanteCorreo;
-    }
-
-    public String getSolicitanteNombre() {
-        return solicitanteNombre;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public EstadoSolicitud getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoSolicitud estado) {
-        this.estado = estado;
-    }
-
-    public LocalDateTime getCreadaEn() {
-        return creadaEn;
-    }
-
-    public LocalDateTime getRetiradaEn() {
-        return retiradaEn;
-    }
-
-    public void setRetiradaEn(LocalDateTime retiradaEn) {
-        this.retiradaEn = retiradaEn;
     }
 }
