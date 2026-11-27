@@ -1,0 +1,20 @@
+meta {
+  name: 14 Ver solicitud de Ana como Carlos (403)
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/api/solicitudes/{{solicitudAnaId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Rol: SOLICITANTE
+  X-Usuario: carlos@correo.com
+}
+
+assert {
+  res.status: eq 403
+}

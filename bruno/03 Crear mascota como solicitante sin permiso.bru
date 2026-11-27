@@ -1,0 +1,27 @@
+meta {
+  name: 03 Crear mascota como solicitante (sin permiso)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/mascotas
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: SOLICITANTE
+  X-Usuario: ana@correo.com
+}
+
+body:json {
+  {
+    "nombre": "Toby",
+    "especie": "Perro"
+  }
+}
+
+assert {
+  res.status: eq 403
+}

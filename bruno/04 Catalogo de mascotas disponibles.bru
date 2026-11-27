@@ -1,0 +1,15 @@
+meta {
+  name: 04 Catalogo de mascotas disponibles
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/mascotas?estado=DISPONIBLE
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

@@ -1,0 +1,24 @@
+meta {
+  name: 08 Crear solicitud duplicada de Ana (RN-01)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/solicitudes-adopcion
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mascotaId": {{mascotaId}},
+    "solicitanteNombre": "Ana Pérez",
+    "solicitanteCorreo": "ana@correo.com",
+    "telefono": "3103334455"
+  }
+}
+
+assert {
+  res.status: eq 409
+}
