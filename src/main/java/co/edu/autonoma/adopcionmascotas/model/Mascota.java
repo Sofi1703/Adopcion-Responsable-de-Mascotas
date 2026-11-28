@@ -8,13 +8,23 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+// sin @Data porque equals y hashCode generados no son seguros en entidades JPA
 @Entity
 @Table(name = "mascota")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Mascota {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     private Long id;
 
     @Column(nullable = false, length = 100)
@@ -37,66 +47,13 @@ public class Mascota {
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
 
-    protected Mascota() {
-    }
-
+    // la mascota siempre nace DISPONIBLE y por eso el estado no va en el builder
+    @Builder
     public Mascota(String nombre, String especie, String raza, String descripcion, String imagenUrl) {
         this.nombre = nombre;
         this.especie = especie;
         this.raza = raza;
         this.descripcion = descripcion;
-        this.imagenUrl = imagenUrl;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(String especie) {
-        this.especie = especie;
-    }
-
-    public String getRaza() {
-        return raza;
-    }
-
-    public void setRaza(String raza) {
-        this.raza = raza;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public EstadoMascota getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoMascota estado) {
-        this.estado = estado;
-    }
-
-    public String getImagenUrl() {
-        return imagenUrl;
-    }
-
-    public void setImagenUrl(String imagenUrl) {
         this.imagenUrl = imagenUrl;
     }
 }

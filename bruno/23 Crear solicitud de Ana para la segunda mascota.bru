@@ -1,0 +1,28 @@
+meta {
+  name: 23 Crear solicitud de Ana para la segunda mascota
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/api/solicitudes-adopcion
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mascotaId": {{mascota2Id}},
+    "solicitanteNombre": "Ana Pérez",
+    "solicitanteCorreo": "ana@correo.com",
+    "telefono": "3103334455"
+  }
+}
+
+vars:post-response {
+  solicitudRetiroId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

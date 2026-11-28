@@ -1,0 +1,28 @@
+meta {
+  name: 02 Crear mascota con imagen invalida (RN-06)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/mascotas
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: FUNDACION
+  X-Usuario: fundacion
+}
+
+body:json {
+  {
+    "nombre": "Toby",
+    "especie": "Perro",
+    "imagenUrl": "no-es-una-url"
+  }
+}
+
+assert {
+  res.status: eq 400
+}

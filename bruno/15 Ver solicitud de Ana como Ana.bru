@@ -1,0 +1,20 @@
+meta {
+  name: 15 Ver solicitud de Ana como Ana
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/api/solicitudes/{{solicitudAnaId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Rol: SOLICITANTE
+  X-Usuario: ana@correo.com
+}
+
+assert {
+  res.status: eq 200
+}

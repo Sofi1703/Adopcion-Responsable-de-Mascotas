@@ -1,0 +1,31 @@
+meta {
+  name: 27 Crear mascota temporal
+  type: http
+  seq: 27
+}
+
+post {
+  url: {{baseUrl}}/api/mascotas
+  body: json
+  auth: none
+}
+
+headers {
+  X-Rol: FUNDACION
+  X-Usuario: fundacion
+}
+
+body:json {
+  {
+    "nombre": "Temporal",
+    "especie": "Perro"
+  }
+}
+
+vars:post-response {
+  mascotaTmpId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

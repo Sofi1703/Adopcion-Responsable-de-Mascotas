@@ -1,0 +1,20 @@
+meta {
+  name: 26 Eliminar mascota con solicitudes (409)
+  type: http
+  seq: 26
+}
+
+delete {
+  url: {{baseUrl}}/api/mascotas/{{mascotaId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Rol: FUNDACION
+  X-Usuario: fundacion
+}
+
+assert {
+  res.status: eq 409
+}

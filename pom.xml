@@ -61,6 +61,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- seguridad: autenticacion con usuario y contrasena, y reglas por ruta -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
